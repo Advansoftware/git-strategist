@@ -9,5 +9,5 @@ export const ai = genkit({
     }),
   ],
   // Use the model name compatible with the Vertex AI endpoint
-  model: 'gemini-1.5-flash',
+  model: 'gemini-1.5-pro-preview-0409',
 });
