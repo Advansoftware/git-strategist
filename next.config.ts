@@ -3,6 +3,10 @@ import type {NextConfig} from 'next';
 // Forçando reinicialização para carregar o .env
 const nextConfig: NextConfig = {
   /* config options here */
+  env: {
+    // Adicionado para forçar a reinicialização e carregar o .env
+    RESTART_TRIGGER: new Date().toISOString(),
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
