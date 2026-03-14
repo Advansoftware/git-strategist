@@ -91,6 +91,9 @@ const projectStrategyBlueprintFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await projectStrategyBlueprintPrompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('Failed to generate project strategy blueprint.');
+    }
+    return output;
   }
 );

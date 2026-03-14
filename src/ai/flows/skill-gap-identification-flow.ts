@@ -70,6 +70,9 @@ const skillGapIdentificationFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await skillGapIdentificationPrompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('Failed to generate skill gap identification.');
+    }
+    return output;
   }
 );
