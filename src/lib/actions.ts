@@ -32,8 +32,9 @@ export async function getProjectAnalysis(
     return { strategy, gaps, effort, price, proposal };
   } catch (error) {
     console.error('AI API call failed:', error);
-    // Re-throwing the error to make it visible as an application-level error
-    // instead of just showing a toast message. This helps with debugging.
-    throw error;
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: 'Análise de IA falhou devido a um erro desconhecido.' };
   }
 }
