@@ -4,8 +4,10 @@ import {googleAI} from '@genkit-ai/google-genai';
 export const ai = genkit({
   plugins: [
     googleAI({
-      apiVersion: 'v1beta',
+      // Route requests through a specific Vertex AI endpoint to avoid regional restrictions
+      apiEndpoint: 'us-central1-aiplatform.googleapis.com',
     }),
   ],
-  model: 'googleai/gemini-1.5-pro-latest',
+  // Use the model name compatible with the Vertex AI endpoint
+  model: 'gemini-1.5-pro-latest',
 });
