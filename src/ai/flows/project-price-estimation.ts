@@ -7,7 +7,7 @@
  * - ProjectPriceOutput - The return type for the estimateProjectPrice function.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, geminiModel} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ProjectPriceInputSchema = z.object({
@@ -67,7 +67,7 @@ const projectPriceEstimationFlow = ai.defineFlow(
     outputSchema: ProjectPriceOutputSchema,
   },
   async (input) => {
-    const {output} = await projectPricePrompt(input, { model: 'gemini-1.5-flash-latest' });
+    const {output} = await projectPricePrompt(input, { model: geminiModel });
     if (!output) {
       throw new Error('Failed to generate project price estimation.');
     }

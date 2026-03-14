@@ -7,7 +7,7 @@
  * - ProjectEffortComplexityOutput - The return type for the estimateProjectEffortAndComplexity function.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, geminiModel} from '@/ai/genkit';
 import {z} from 'genkit';
 
 // Define the input schema for the project effort and complexity estimation.
@@ -51,7 +51,7 @@ const projectEffortComplexityEstimationFlow = ai.defineFlow(
     outputSchema: ProjectEffortComplexityOutputSchema,
   },
   async (input) => {
-    const {output} = await projectEffortComplexityPrompt(input, { model: 'gemini-1.5-flash-latest' });
+    const {output} = await projectEffortComplexityPrompt(input, { model: geminiModel });
     if (!output) {
       throw new Error('Failed to generate project effort and complexity estimation.');
     }
