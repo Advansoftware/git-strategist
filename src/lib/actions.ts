@@ -31,8 +31,9 @@ export async function getProjectAnalysis(
 
     return { strategy, gaps, effort, price, proposal };
   } catch (error) {
-    console.error('Error getting project analysis:', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return { error: `Falha ao gerar a análise do projeto. Detalhe: ${errorMessage}` };
+    console.error('AI API call failed:', error);
+    // Re-throwing the error to make it visible as an application-level error
+    // instead of just showing a toast message. This helps with debugging.
+    throw error;
   }
 }
