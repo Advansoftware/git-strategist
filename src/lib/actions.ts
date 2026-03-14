@@ -32,6 +32,7 @@ export async function getProjectAnalysis(
     return { strategy, gaps, effort, price, proposal };
   } catch (error) {
     console.error('Error getting project analysis:', error);
-    return { error: 'Falha ao gerar a análise do projeto. Por favor, tente novamente.' };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { error: `Falha ao gerar a análise do projeto. Detalhe: ${errorMessage}` };
   }
 }
