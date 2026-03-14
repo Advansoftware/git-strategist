@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Award, BrainCircuit, ClipboardList, Clock, DollarSign, Plus, Wrench } from 'lucide-react';
+import { AlertTriangle, Award, BookMarked, BrainCircuit, ClipboardList, Clock, DollarSign, Plus, Wrench } from 'lucide-react';
 import type { ProjectAnalysis } from '@/lib/types';
 import { Button } from './ui/button';
 
@@ -16,7 +16,7 @@ interface ResultsViewProps {
 }
 
 export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
-  const { strategy, gaps, effort, price } = analysis;
+  const { strategy, gaps, effort, price, proposal } = analysis;
 
   const difficulty = strategy.projectDifficulty || effort.complexityRating;
   
@@ -61,7 +61,7 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <Accordion type="multiple" defaultValue={gaps.missingSkills.length > 0 ? ['execution-plan', 'missing-skills'] : ['execution-plan']} className="w-full">
+          <Accordion type="multiple" defaultValue={['execution-plan', 'proposal-structure']} className="w-full">
             <AccordionItem value="execution-plan">
               <AccordionTrigger className="text-lg font-semibold hover:no-underline">
                 <div className="flex items-center gap-3">
@@ -78,6 +78,27 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
                     </li>
                   ))}
                 </ol>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="proposal-structure">
+              <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <BookMarked className="h-5 w-5 text-accent" />
+                  Estrutura da Proposta
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-4 pl-4 border-l-2 ml-4 space-y-6">
+                {proposal.sections.map((section, index) => (
+                  <div key={index}>
+                    <h4 className="font-semibold text-base mb-2">{index + 1}. {section.title}</h4>
+                    <p className="text-muted-foreground mb-2">{section.content}</p>
+                    <div className="text-sm p-3 bg-muted/50 rounded-md border border-dashed">
+                        <p className="font-semibold text-muted-foreground/80 mb-1">Exemplo:</p>
+                        <p className="italic">"{section.example}"</p>
+                    </div>
+                  </div>
+                ))}
               </AccordionContent>
             </AccordionItem>
 
