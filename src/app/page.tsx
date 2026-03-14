@@ -25,6 +25,8 @@ export default function Home() {
   const { skills, addMultipleSkills, isLoaded: skillsLoaded } = useSkills();
   const { toast } = useToast();
   const [prompt, setPrompt] = useState('');
+  const [minBudget, setMinBudget] = useState<string>('');
+  const [maxBudget, setMaxBudget] = useState<string>('');
   const [analysis, setAnalysis] = useState<ProjectAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,7 +37,10 @@ export default function Home() {
     setIsLoading(true);
     setAnalysis(null);
 
-    const result = await getProjectAnalysis(prompt, skills);
+    const min = minBudget ? parseFloat(minBudget) : undefined;
+    const max = maxBudget ? parseFloat(maxBudget) : undefined;
+
+    const result = await getProjectAnalysis(prompt, skills, min, max);
 
     if ('error' in result) {
       toast({
@@ -72,8 +77,13 @@ export default function Home() {
       </Sidebar>
       <SidebarInset>
         <div className="flex flex-col h-screen bg-background">
-          <header className="p-4 border-b flex items-center gap-4 shrink-0">
+           <header className="p-4 border-b flex items-center gap-4 shrink-0 h-16">
             <SidebarTrigger />
+            <div className="flex-grow" />
+             {analysis && (
+              <h1 className="text-lg font-semibold font-headline animate-in fade-in-25">Análise do Projeto</h1>
+             )}
+            <div className="flex-grow" />
           </header>
           <main className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="max-w-4xl mx-auto h-full flex flex-col">
@@ -97,6 +107,10 @@ export default function Home() {
                   prompt={prompt}
                   setPrompt={setPrompt}
                   isLoading={isLoading}
+                  minBudget={minBudget}
+                  setMinBudget={setMinBudget}
+                  maxBudget={maxBudget}
+                  setMaxBudget={setMaxBudget}
                 />
               </div>
             </div>

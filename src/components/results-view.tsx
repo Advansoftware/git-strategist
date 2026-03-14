@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Award, BrainCircuit, ClipboardList, Clock, Plus, Wrench } from 'lucide-react';
+import { AlertTriangle, Award, BrainCircuit, ClipboardList, Clock, DollarSign, Plus, Wrench } from 'lucide-react';
 import type { ProjectAnalysis } from '@/lib/types';
 import { Button } from './ui/button';
 
@@ -16,7 +16,7 @@ interface ResultsViewProps {
 }
 
 export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
-  const { strategy, gaps, effort } = analysis;
+  const { strategy, gaps, effort, price } = analysis;
 
   const difficulty = strategy.projectDifficulty || effort.complexityRating;
   
@@ -40,9 +40,15 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
       <Card className="shadow-lg rounded-xl">
         <CardHeader>
           <div className="flex flex-wrap items-start gap-4">
-            <CardTitle className="font-headline text-2xl lg:text-3xl">Plano do Projeto</CardTitle>
+            <CardTitle className="font-headline text-2xl lg:text-3xl sr-only">Plano do Projeto</CardTitle>
             <div className="flex-grow" />
             <div className="flex flex-wrap gap-2">
+              {price.suggestedPrice && (
+                 <Badge variant="outline" className="text-sm py-1 px-3 border-green-500/50 text-green-500 bg-green-500/10">
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    {price.suggestedPrice}
+                 </Badge>
+              )}
               <Badge variant={difficultyVariants[difficulty]} className="text-sm py-1 px-3">
                 <BrainCircuit className="h-4 w-4 mr-2" />
                 {difficulty}
