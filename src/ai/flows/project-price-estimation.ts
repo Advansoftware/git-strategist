@@ -15,6 +15,7 @@ const ProjectPriceInputSchema = z.object({
   userSkills: z.array(z.string()).describe("A list of the freelancer's relevant skills."),
   minBudget: z.number().optional().describe('The minimum budget for the project.'),
   maxBudget: z.number().optional().describe('The maximum budget for the project.'),
+  minPossibleBudget: z.number().optional().describe('The absolute minimum price the freelancer is willing to accept.'),
 });
 export type ProjectPriceInput = z.infer<typeof ProjectPriceInputSchema>;
 
@@ -27,11 +28,13 @@ const projectPricePrompt = ai.definePrompt({
   name: 'projectPricePrompt',
   input: {schema: ProjectPriceInputSchema},
   output: {schema: ProjectPriceOutputSchema},
-  prompt: `Você é um especialista em precificação de projetos freelance. Sua tarefa é sugerir um preço justo para um projeto com base em sua descrição, as habilidades do freelancer e uma faixa de orçamento opcional.
+  prompt: `Você é um especialista em precificação de projetos freelance. Sua tarefa é sugerir um preço justo para um projeto com base em sua descrição, as habilidades do freelancer e os valores de orçamento fornecidos.
 
-Leve em consideração a complexidade, o tempo de desenvolvimento e o valor de mercado para as tecnologias e habilidades necessárias. As habilidades do freelancer devem influenciar o preço; um freelancer com todas as habilidades necessárias pode cobrar mais do que um que precisaria aprender durante o projeto.
-
-Se uma faixa de orçamento (mínimo e máximo) for fornecida, tente sugerir um valor dentro dessa faixa, desde que seja realista e justo para o escopo do projeto. Se a faixa de orçamento parecer irrealista, justifique uma sugestão fora dela, explicando o porquê.
+Fatores a considerar:
+1.  **Complexidade e Habilidades:** A complexidade, o tempo de desenvolvimento e o valor de mercado para as tecnologias necessárias. Um freelancer com todas as habilidades pode cobrar mais.
+2.  **Orçamento do Cliente:** Se uma faixa de orçamento (mínimo e máximo) for fornecida pelo cliente, tente sugerir um valor dentro dessa faixa, se for realista.
+3.  **Mínimo Aceitável do Freelancer:** O "valor mínimo aceitável" é o piso absoluto do freelancer. A sugestão NUNCA deve ser inferior a este valor, mesmo que o orçamento do cliente seja menor.
+4.  **Conflito de Orçamento:** Se o orçamento máximo do cliente for inferior ao seu mínimo aceitável, justifique uma sugestão de preço mais alta, explicando por que o orçamento do cliente é irrealista para o escopo.
 
 Descrição do Projeto:
 {{{projectDescription}}}
@@ -45,13 +48,16 @@ Habilidades do Freelancer:
 {{/if}}
 
 {{#if minBudget}}
-Orçamento Mínimo Fornecido: R$ {{{minBudget}}}
+Orçamento Mínimo do Cliente: R$ {{{minBudget}}}
 {{/if}}
 {{#if maxBudget}}
-Orçamento Máximo Fornecido: R$ {{{maxBudget}}}
+Orçamento Máximo do Cliente: R$ {{{maxBudget}}}
+{{/if}}
+{{#if minPossibleBudget}}
+Seu Valor Mínimo Aceitável: R$ {{{minPossibleBudget}}}
 {{/if}}
 
-Com base em todas essas informações, forneça uma sugestão de preço.`,
+Com base em todas essas informações, forneça uma sugestão de preço concisa.`,
 });
 
 const projectPriceEstimationFlow = ai.defineFlow(

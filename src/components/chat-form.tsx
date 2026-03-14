@@ -17,6 +17,8 @@ interface ChatFormProps {
   setMinBudget: (value: string) => void;
   maxBudget: string;
   setMaxBudget: (value: string) => void;
+  minPossibleBudget: string;
+  setMinPossibleBudget: (value: string) => void;
 }
 
 export function ChatForm({
@@ -27,7 +29,9 @@ export function ChatForm({
   minBudget,
   setMinBudget,
   maxBudget,
-  setMaxBudget
+  setMaxBudget,
+  minPossibleBudget,
+  setMinPossibleBudget,
 }: ChatFormProps) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -93,6 +97,17 @@ export function ChatForm({
                       />
                     </div>
                   </div>
+                   <div className="space-y-2">
+                      <Label htmlFor="min-possible-budget">Valor Mín. Aceitável (R$)</Label>
+                      <Input 
+                        id="min-possible-budget" 
+                        type="number" 
+                        placeholder="Ex: 800"
+                        value={minPossibleBudget}
+                        onChange={(e) => setMinPossibleBudget(e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
                 </div>
               </PopoverContent>
             </Popover>

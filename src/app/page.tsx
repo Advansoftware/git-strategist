@@ -27,6 +27,7 @@ export default function Home() {
   const [prompt, setPrompt] = useState('');
   const [minBudget, setMinBudget] = useState<string>('');
   const [maxBudget, setMaxBudget] = useState<string>('');
+  const [minPossibleBudget, setMinPossibleBudget] = useState<string>('');
   const [analysis, setAnalysis] = useState<ProjectAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,8 +40,9 @@ export default function Home() {
 
     const min = minBudget ? parseFloat(minBudget) : undefined;
     const max = maxBudget ? parseFloat(maxBudget) : undefined;
+    const minPossible = minPossibleBudget ? parseFloat(minPossibleBudget) : undefined;
 
-    const result = await getProjectAnalysis(prompt, skills, min, max);
+    const result = await getProjectAnalysis(prompt, skills, min, max, minPossible);
 
     if ('error' in result) {
       toast({
@@ -111,6 +113,8 @@ export default function Home() {
                   setMinBudget={setMinBudget}
                   maxBudget={maxBudget}
                   setMaxBudget={setMaxBudget}
+                  minPossibleBudget={minPossibleBudget}
+                  setMinPossibleBudget={setMinPossibleBudget}
                 />
               </div>
             </div>

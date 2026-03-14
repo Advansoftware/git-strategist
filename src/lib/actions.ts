@@ -10,7 +10,8 @@ export async function getProjectAnalysis(
   projectDescription: string,
   userSkills: string[],
   minBudget?: number,
-  maxBudget?: number
+  maxBudget?: number,
+  minPossibleBudget?: number
 ): Promise<ProjectAnalysis | { error: string }> {
   if (!projectDescription) {
     return { error: 'A descrição do projeto não pode estar vazia.' };
@@ -23,7 +24,7 @@ export async function getProjectAnalysis(
       projectStrategyBlueprint(commonInput),
       identifySkillGaps(commonInput),
       estimateProjectEffortAndComplexity(commonInput),
-      estimateProjectPrice({ ...commonInput, minBudget, maxBudget }),
+      estimateProjectPrice({ ...commonInput, minBudget, maxBudget, minPossibleBudget }),
     ]);
 
     return { strategy, gaps, effort, price };
