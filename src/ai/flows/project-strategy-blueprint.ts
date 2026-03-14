@@ -90,7 +90,7 @@ const projectStrategyBlueprintFlow = ai.defineFlow(
     outputSchema: ProjectStrategyBlueprintOutputSchema,
   },
   async input => {
-    const {output} = await projectStrategyBlueprintPrompt(input, { model: 'gemini-1.5-pro-latest' });
+    const {output} = await projectStrategyBlueprintPrompt(input, { model: 'gemini-1.5-flash-latest' });
     if (!output) {
       throw new Error('Failed to generate project strategy blueprint.');
     }
