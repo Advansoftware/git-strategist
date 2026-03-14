@@ -79,7 +79,7 @@ Siga estas diretrizes para sua resposta:
 - O \`executionPlan\` deve ser um guia passo a passo para concluir o projeto.
 - \`potentialChallenges\` deve listar possíveis obstáculos e como mitigá-los.
 - \`resourceSuggestions\` deve incluir ferramentas, tecnologias e materiais de aprendizado.
-- \`recommendedTimeCommitment\` deve ser uma estimativa concisa e realista (e.g., "1-2 semanas", "40-80 horas"). Ao estimar, inclua uma margem para contratempos comuns, como revisões de cliente, bugs inesperados e atrasos técnicos (ex: propagação de DNS). A estimativa deve refletir um prazo realista, não o cenário mais otimista.
+- \`recommendedTimeCommitment\` deve ser uma estimativa de horas realista (ex: "40-50 horas"). Comece pelo tempo de execução principal e adicione uma margem sensata (cerca de 20%) para contratempos como bugs ou revisões. Não infle a estimativa excessivamente; uma tarefa que leva 8 horas para ser executada não deve ser estimada em 3 dias. O objetivo é ser realista, não pessimista.
 - \`projectDifficulty\` deve ser um de "Iniciante", "Intermediário", ou "Avançado".`,
 });
 

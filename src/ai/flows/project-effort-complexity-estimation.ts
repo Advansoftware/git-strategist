@@ -29,7 +29,18 @@ const projectEffortComplexityPrompt = ai.definePrompt({
   name: 'projectEffortComplexityPrompt',
   input: {schema: ProjectEffortComplexityInputSchema},
   output: {schema: ProjectEffortComplexityOutputSchema},
-  prompt: `Você é um analista especialista em projetos freelance. Sua tarefa é avaliar a descrição de um projeto e determinar sua complexidade e o tempo de dedicação recomendado, considerando especificamente as habilidades listadas do freelancer. A complexidade e o tempo devem ser menores se o freelancer possuir as habilidades necessárias e maiores se houver lacunas de habilidades.\n\nDescrição do Projeto: {{{projectDescription}}}\n\nHabilidades do Freelancer:\n{{#each userSkills}}\n- {{{this}}}\n{{/each}}\n\nCom base na descrição do projeto e nas habilidades do freelancer, forneça uma recomendação de tempo de dedicação e uma classificação geral de complexidade do projeto. A classificação de complexidade deve ser 'iniciante', 'intermediário' ou 'avançado'. A dedicação de tempo deve ser uma estimativa clara e realista (por exemplo, '2-4 semanas' ou '80-120 horas'), já considerando uma margem para testes, revisões e possíveis imprevistos.`,
+  prompt: `Você é um analista especialista em projetos freelance. Sua tarefa é avaliar a descrição de um projeto e determinar sua complexidade e o tempo de dedicação recomendado, considerando especificamente as habilidades listadas do freelancer. A complexidade e o tempo devem ser menores se o freelancer possuir as habilidades necessárias.
+
+Descrição do Projeto: {{{projectDescription}}}
+
+Habilidades do Freelancer:
+{{#each userSkills}}
+- {{{this}}}
+{{/each}}
+
+Com base na descrição do projeto e nas habilidades do freelancer, forneça uma recomendação de tempo de dedicação e uma classificação de complexidade.
+- **Complexidade:** 'iniciante', 'intermediário' ou 'avançado'.
+- **Tempo de Dedicação:** Forneça uma estimativa de horas de trabalho realista (ex: '30-40 horas'). Comece estimando o esforço principal e adicione uma margem de contingência razoável (cerca de 20%) para revisões e imprevistos. Evite transformar tarefas de poucas horas em vários dias. Uma tarefa de 8 horas, por exemplo, deve ser estimada em torno de 10-12 horas, não 2-3 dias.`,
 });
 
 // Define the Genkit flow for estimating project effort and complexity.
