@@ -39,7 +39,7 @@ export function SkillManager() {
             value={newSkill}
             onChange={(e) => setNewSkill(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
-            className="h-9 bg-sidebar-background text-sidebar-foreground placeholder:text-sidebar-foreground/60 ring-1 ring-sidebar-border focus:bg-white focus:text-card-foreground"
+            className="h-9 bg-sidebar-accent text-sidebar-accent-foreground placeholder:text-sidebar-accent-foreground/60 border-sidebar-border focus:bg-background focus:text-foreground"
           />
           <Button variant="primary" size="icon" className="h-9 w-9 shrink-0 bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90" onClick={handleAddSkill}>
             <Plus className="h-4 w-4" />
