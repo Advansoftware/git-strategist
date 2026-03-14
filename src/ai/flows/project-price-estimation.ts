@@ -67,7 +67,7 @@ const projectPriceEstimationFlow = ai.defineFlow(
     outputSchema: ProjectPriceOutputSchema,
   },
   async (input) => {
-    const {output} = await projectPricePrompt(input, { model: 'gemini-pro' });
+    const {output} = await projectPricePrompt(input, { model: 'gemini-1.5-pro-latest' });
     if (!output) {
       throw new Error('Failed to generate project price estimation.');
     }

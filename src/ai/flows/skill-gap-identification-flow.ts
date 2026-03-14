@@ -69,7 +69,7 @@ const skillGapIdentificationFlow = ai.defineFlow(
     outputSchema: SkillGapOutputSchema,
   },
   async input => {
-    const {output} = await skillGapIdentificationPrompt(input, { model: 'gemini-pro' });
+    const {output} = await skillGapIdentificationPrompt(input, { model: 'gemini-1.5-pro-latest' });
     if (!output) {
       throw new Error('Failed to generate skill gap identification.');
     }

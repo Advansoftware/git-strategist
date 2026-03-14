@@ -71,7 +71,7 @@ const proposalStructureFlow = ai.defineFlow(
     outputSchema: ProposalStructureOutputSchema,
   },
   async (input) => {
-    const {output} = await proposalStructurePrompt(input, { model: 'gemini-pro' });
+    const {output} = await proposalStructurePrompt(input, { model: 'gemini-1.5-pro-latest' });
     if (!output) {
       throw new Error('Failed to generate proposal structure.');
     }
