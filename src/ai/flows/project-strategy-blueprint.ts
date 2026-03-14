@@ -71,7 +71,7 @@ Aqui estão as habilidades conhecidas do freelancer:
   Nenhuma habilidade específica fornecida.
 {{/if}}
 
-Com base nessas informações, gere um plano de execução detalhado, identifique desafios potenciais, sugira recursos relevantes e forneça uma avaliação do tempo de dedicação recomendado e da dificuldade do projeto.
+Com base nessas informações, gere um plano de execução detalhado, identifique desafios potenciais, sugira recursos relevantes e forneça uma avaliação do tempo de dedicação recomendado e da dificuldade do projeto. A dificuldade e o tempo de dedicação devem refletir o alinhamento entre as habilidades do freelancer e os requisitos do projeto. Se o freelancer tiver as habilidades necessárias, a dificuldade e o tempo devem ser menores.
 
 O resultado deve ser um objeto JSON em conformidade com o esquema especificado.
 
