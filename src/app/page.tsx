@@ -95,6 +95,8 @@ export default function Home() {
     });
   }
 
+  const isChatEmpty = messages.length === 0 && !isLoading;
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -117,8 +119,8 @@ export default function Home() {
           </header>
           <main ref={scrollAreaRef} className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="max-w-4xl mx-auto h-full flex flex-col">
-              <div className="flex-1 space-y-8">
-                {messages.length === 0 && !isLoading ? (
+              <div className={`flex-1 space-y-8 ${isChatEmpty ? 'flex flex-col justify-center' : ''}`}>
+                {isChatEmpty ? (
                   <WelcomeView />
                 ) : (
                   messages.map((message) => (
