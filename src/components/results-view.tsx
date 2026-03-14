@@ -1,14 +1,13 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
+import { Accordion } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Award, BookMarked, BrainCircuit, ClipboardList, Clock, DollarSign, Plus, Wrench } from 'lucide-react';
 import type { ProjectAnalysis } from '@/lib/types';
-import { Button } from './ui/button';
+
+import { ProjectSummary } from './analysis/project-summary';
+import { ExecutionPlan } from './analysis/execution-plan';
+import { ProposalStructure } from './analysis/proposal-structure';
+import { SuggestedSkills } from './analysis/suggested-skills';
+import { PotentialChallenges } from './analysis/potential-challenges';
+import { ResourceSuggestions } from './analysis/resource-suggestions';
 
 interface ResultsViewProps {
   analysis: ProjectAnalysis;
@@ -18,23 +17,6 @@ interface ResultsViewProps {
 export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
   const { strategy, gaps, effort, price, proposal } = analysis;
 
-  const difficulty = strategy.projectDifficulty || effort.complexityRating;
-  
-  const difficultyVariants: Record<string, 'secondary' | 'default' | 'destructive'> = {
-    Beginner: 'secondary',
-    Intermediate: 'default',
-    Advanced: 'destructive',
-    beginner: 'secondary',
-    intermediate: 'default',
-    advanced: 'destructive',
-    Iniciante: 'secondary',
-    Intermediário: 'default',
-    Avançado: 'destructive',
-    iniciante: 'secondary',
-    intermediário: 'default',
-    avançado: 'destructive',
-  };
-
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-500">
       <Card className="shadow-lg rounded-xl">
@@ -42,118 +24,16 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
           <div className="flex flex-wrap items-start gap-4">
             <CardTitle className="font-headline text-2xl lg:text-3xl sr-only">Plano do Projeto</CardTitle>
             <div className="flex-grow" />
-            <div className="flex flex-wrap gap-2">
-              {price.suggestedPrice && (
-                 <Badge variant="outline" className="text-sm py-1 px-3 border-green-500/50 text-green-500 bg-green-500/10">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    {price.suggestedPrice}
-                 </Badge>
-              )}
-              <Badge variant={difficultyVariants[difficulty]} className="text-sm py-1 px-3">
-                <BrainCircuit className="h-4 w-4 mr-2" />
-                {difficulty}
-              </Badge>
-              <Badge variant="outline" className="text-sm py-1 px-3 border-primary/50 text-primary">
-                <Clock className="h-4 w-4 mr-2" />
-                {strategy.recommendedTimeCommitment || effort.timeCommitment}
-              </Badge>
-            </div>
+            <ProjectSummary price={price} effort={effort} strategy={strategy} />
           </div>
         </CardHeader>
         <CardContent>
           <Accordion type="multiple" defaultValue={['execution-plan', 'proposal-structure']} className="w-full">
-            <AccordionItem value="execution-plan">
-              <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <ClipboardList className="h-5 w-5 text-accent" />
-                  Plano de Execução
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-4 pl-4 border-l-2 ml-4">
-                <ol className="space-y-4 text-base">
-                  {strategy.executionPlan.map((step, index) => (
-                    <li key={index} className="flex gap-3">
-                        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0 mt-0.5">{index + 1}</div>
-                        <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="proposal-structure">
-              <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <BookMarked className="h-5 w-5 text-accent" />
-                  Estrutura da Proposta
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-4 pl-4 border-l-2 ml-4 space-y-6">
-                {proposal.sections.map((section, index) => (
-                  <div key={index}>
-                    <h4 className="font-semibold text-base mb-2">{index + 1}. {section.title}</h4>
-                    <div className="text-base p-4 bg-muted/50 rounded-md border whitespace-pre-wrap">
-                      {section.suggestedText}
-                    </div>
-                  </div>
-                ))}
-              </AccordionContent>
-            </AccordionItem>
-
-            {gaps.missingSkills.length > 0 && (
-                 <AccordionItem value="missing-skills">
-                 <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                   <div className="flex items-center gap-3">
-                     <Award className="h-5 w-5 text-accent" />
-                     Habilidades Sugeridas
-                   </div>
-                 </AccordionTrigger>
-                 <AccordionContent className="pt-4 pl-4 border-l-2 ml-4 space-y-4">
-                    <p className="text-base text-muted-foreground">{gaps.explanation}</p>
-                    <div className="flex flex-wrap gap-2">
-                        {gaps.missingSkills.map((skill) => (
-                            <Badge key={skill} variant="secondary" className="text-base">{skill}</Badge>
-                        ))}
-                    </div>
-                    <Button onClick={() => onAddSkills(gaps.missingSkills)} variant="ghost" className="text-accent hover:text-accent">
-                        <Plus className="mr-2 h-4 w-4"/>
-                        Adicionar estas habilidades ao meu perfil
-                    </Button>
-                 </AccordionContent>
-               </AccordionItem>
-            )}
-
-            <AccordionItem value="potential-challenges">
-              <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="h-5 w-5 text-accent" />
-                  Desafios Potenciais
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-4 pl-4 border-l-2 ml-4">
-                <ul className="list-disc list-inside space-y-3 text-base marker:text-accent">
-                  {strategy.potentialChallenges.map((challenge, index) => (
-                    <li key={index} className="pl-2">{challenge}</li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="resource-suggestions">
-              <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <Wrench className="h-5 w-5 text-accent" />
-                  Sugestões de Recursos
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="pt-4 pl-4 border-l-2 ml-4">
-                <ul className="list-disc list-inside space-y-3 text-base marker:text-accent">
-                  {strategy.resourceSuggestions.map((resource, index) => (
-                    <li key={index} className="pl-2">{resource}</li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
+            <ExecutionPlan plan={strategy.executionPlan} />
+            <ProposalStructure proposal={proposal} />
+            <SuggestedSkills gaps={gaps} onAddSkills={onAddSkills} />
+            <PotentialChallenges challenges={strategy.potentialChallenges} />
+            <ResourceSuggestions suggestions={strategy.resourceSuggestions} />
           </Accordion>
         </CardContent>
       </Card>
