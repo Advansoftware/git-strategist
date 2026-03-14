@@ -9,4 +9,4 @@ export const ai = genkit({
   ],
 });
 
-export const geminiModel = 'gemini-1.5-flash-latest';
+export const geminiModel = 'gemini-1.0-pro';
