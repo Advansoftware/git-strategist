@@ -1,5 +1,6 @@
 import type {NextConfig} from 'next';
 
+// Forçando reinicialização para carregar o .env
 const nextConfig: NextConfig = {
   /* config options here */
   typescript: {
