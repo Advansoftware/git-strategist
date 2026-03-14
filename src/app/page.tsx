@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { getProjectAnalysis } from '@/lib/actions';
 import { useSkills } from '@/hooks/use-skills';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +20,15 @@ import { ChatForm } from '@/components/chat-form';
 import { ResultsView } from '@/components/results-view';
 import { WelcomeView } from '@/components/welcome-view';
 import { Skeleton } from '@/components/ui/skeleton';
+import { UserMessage } from '@/components/user-message';
+import { AssistantMessage } from '@/components/assistant-message';
+
+
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string | ProjectAnalysis;
+};
 
 export default function Home() {
   const { skills, addMultipleSkills, isLoaded: skillsLoaded } = useSkills();
@@ -28,21 +37,38 @@ export default function Home() {
   const [minBudget, setMinBudget] = useState<string>('');
   const [maxBudget, setMaxBudget] = useState<string>('');
   const [minPossibleBudget, setMinPossibleBudget] = useState<string>('');
-  const [analysis, setAnalysis] = useState<ProjectAnalysis | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!prompt.trim() || !skillsLoaded) return;
 
     setIsLoading(true);
-    setAnalysis(null);
+    
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: prompt,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    const currentPrompt = prompt;
+    setPrompt('');
 
     const min = minBudget ? parseFloat(minBudget) : undefined;
     const max = maxBudget ? parseFloat(maxBudget) : undefined;
     const minPossible = minPossibleBudget ? parseFloat(minPossibleBudget) : undefined;
 
-    const result = await getProjectAnalysis(prompt, skills, min, max, minPossible);
+    const result = await getProjectAnalysis(currentPrompt, skills, min, max, minPossible);
 
     if ('error' in result) {
       toast({
@@ -51,7 +77,12 @@ export default function Home() {
         description: result.error,
       });
     } else {
-      setAnalysis(result);
+      const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: result,
+      };
+      setMessages(prev => [...prev, assistantMessage]);
     }
     setIsLoading(false);
   };
@@ -82,24 +113,35 @@ export default function Home() {
            <header className="p-4 border-b flex items-center gap-4 shrink-0 h-16">
             <SidebarTrigger />
             <div className="flex-grow" />
-             {analysis && (
-              <h1 className="text-lg font-semibold font-headline animate-in fade-in-25">Análise do Projeto</h1>
-             )}
             <div className="flex-grow" />
           </header>
-          <main className="flex-1 overflow-y-auto p-4 md:p-8">
+          <main ref={scrollAreaRef} className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="max-w-4xl mx-auto h-full flex flex-col">
               <div className="flex-1 space-y-8">
-                {isLoading ? (
-                  <div className="space-y-6">
-                     <Skeleton className="h-24 w-full rounded-xl" />
-                     <Skeleton className="h-64 w-full rounded-xl" />
-                     <Skeleton className="h-32 w-full rounded-xl" />
-                  </div>
-                ) : analysis ? (
-                  <ResultsView analysis={analysis} onAddSkills={handleAddSkills} />
-                ) : (
+                {messages.length === 0 && !isLoading ? (
                   <WelcomeView />
+                ) : (
+                  messages.map((message) => (
+                    <div key={message.id}>
+                      {message.role === 'user' && typeof message.content === 'string' && (
+                        <UserMessage prompt={message.content} />
+                      )}
+                      {message.role === 'assistant' && typeof message.content !== 'string' && (
+                        <AssistantMessage>
+                            <ResultsView analysis={message.content} onAddSkills={handleAddSkills} />
+                        </AssistantMessage>
+                      )}
+                    </div>
+                  ))
+                )}
+                {isLoading && (
+                    <AssistantMessage>
+                        <div className="space-y-6">
+                            <Skeleton className="h-24 w-full rounded-xl" />
+                            <Skeleton className="h-64 w-full rounded-xl" />
+                            <Skeleton className="h-32 w-full rounded-xl" />
+                        </div>
+                    </AssistantMessage>
                 )}
               </div>
 
