@@ -42,7 +42,7 @@ const ProjectStrategyBlueprintOutputSchema = z.object({
       'An estimate of the time required to complete the project (e.g., "1-2 weeks", "40-80 hours").'
     ),
   projectDifficulty: z
-    .enum(['Beginner', 'Intermediate', 'Advanced'])
+    .enum(['Iniciante', 'Intermediário', 'Avançado'])
     .describe('An assessment of the project difficulty.'),
 });
 export type ProjectStrategyBlueprintOutput = z.infer<
@@ -59,28 +59,28 @@ const projectStrategyBlueprintPrompt = ai.definePrompt({
   name: 'projectStrategyBlueprintPrompt',
   input: {schema: ProjectStrategyBlueprintInputSchema},
   output: {schema: ProjectStrategyBlueprintOutputSchema},
-  prompt: `You are an expert freelance project strategist. Your goal is to help a freelancer understand a project, its difficulty, required effort, and how to execute it, based on their skills.
+  prompt: `Você é um estrategista especialista em projetos freelance. Seu objetivo é ajudar um freelancer a entender um projeto, sua dificuldade, o esforço necessário e como executá-lo, com base em suas habilidades.
 
-Here is the freelance project description:
+Aqui está a descrição do projeto freelancer:
 {{{projectDescription}}}
 
-Here are the freelancer's known skills:
+Aqui estão as habilidades conhecidas do freelancer:
 {{#if userSkills}}
-  Skills: {{#each userSkills}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
+  Habilidades: {{#each userSkills}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 {{else}}
-  No specific skills provided.
+  Nenhuma habilidade específica fornecida.
 {{/if}}
 
-Based on this information, generate a detailed execution plan, identify potential challenges, suggest relevant resources, and provide an assessment of the recommended time commitment and project difficulty.
+Com base nessas informações, gere um plano de execução detalhado, identifique desafios potenciais, sugira recursos relevantes e forneça uma avaliação do tempo de dedicação recomendado e da dificuldade do projeto.
 
-The output must be a JSON object conforming to the specified schema.
+O resultado deve ser um objeto JSON em conformidade com o esquema especificado.
 
-Follow these guidelines for your response:
-- The \`executionPlan\` should be a step-by-step guide to complete the project.
-- \`potentialChallenges\` should list possible hurdles and how to mitigate them.
-- \`resourceSuggestions\` should include tools, technologies, and learning materials.
-- \`recommendedTimeCommitment\` should be a concise estimate (e.g., "1-2 weeks", "40-80 hours").
-- \`projectDifficulty\` should be one of "Beginner", "Intermediate", or "Advanced".`,
+Siga estas diretrizes para sua resposta:
+- O \`executionPlan\` deve ser um guia passo a passo para concluir o projeto.
+- \`potentialChallenges\` deve listar possíveis obstáculos e como mitigá-los.
+- \`resourceSuggestions\` deve incluir ferramentas, tecnologias e materiais de aprendizado.
+- \`recommendedTimeCommitment\` deve ser uma estimativa concisa (e.g., "1-2 semanas", "40-80 horas").
+- \`projectDifficulty\` deve ser um de "Iniciante", "Intermediário", ou "Avançado".`,
 });
 
 const projectStrategyBlueprintFlow = ai.defineFlow(

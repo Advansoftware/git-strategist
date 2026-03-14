@@ -44,22 +44,22 @@ const skillGapIdentificationPrompt = ai.definePrompt({
   name: 'skillGapIdentificationPrompt',
   input: {schema: SkillGapInputSchema},
   output: {schema: SkillGapOutputSchema},
-  prompt: `You are an expert project analyst specializing in freelance projects. Your task is to analyze a given project description and identify skills that would be highly beneficial or are potentially missing for the user, based on their existing skill set. The goal is to help the user continuously improve their skill portfolio for future projects.
+  prompt: `Você é um analista de projetos especialista em projetos freelance. Sua tarefa é analisar a descrição de um projeto e identificar habilidades que seriam muito benéficas ou que estão potencialmente faltando para o usuário, com base em seu conjunto de habilidades existente. O objetivo é ajudar o usuário a melhorar continuamente seu portfólio de habilidades para projetos futuros.
 
-Project Description:
+Descrição do Projeto:
 {{{projectDescription}}}
 
-User's Current Skills:
+Habilidades Atuais do Usuário:
 {{#if userSkills}}
 {{#each userSkills}}- {{{this}}}
 {{/each}}
 {{else}}
-None provided.
+Nenhuma fornecida.
 {{/if}}
 
-Based on the project description and the user's current skills, identify up to 5 key skills that would significantly aid in successfully completing this project but are not explicitly listed in the user's current skills. For each suggested skill, provide a brief explanation of its relevance. If no additional skills are deemed necessary or beneficial, return an empty array for 'missingSkills'.
+Com base na descrição do projeto e nas habilidades atuais do usuário, identifique até 5 habilidades-chave que ajudariam significativamente na conclusão bem-sucedida deste projeto, mas que não estão explicitamente listadas nas habilidades atuais do usuário. Para cada habilidade sugerida, forneça uma breve explicação de sua relevância. Se nenhuma habilidade adicional for considerada necessária ou benéfica, retorne um array vazio para 'missingSkills'.
 
-Output must be in JSON format matching the SkillGapOutputSchema.`,
+O resultado deve estar no formato JSON correspondente ao SkillGapOutputSchema.`,
 });
 
 const skillGapIdentificationFlow = ai.defineFlow(

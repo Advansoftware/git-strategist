@@ -20,7 +20,7 @@ export type ProjectEffortComplexityInput = z.infer<typeof ProjectEffortComplexit
 // Define the output schema for the project effort and complexity estimation.
 const ProjectEffortComplexityOutputSchema = z.object({
   timeCommitment: z.string().describe('Recommended time commitment for the project, e.g., "2-4 weeks", "80-120 hours".'),
-  complexityRating: z.enum(['beginner', 'intermediate', 'advanced']).describe('Overall project complexity rating (beginner, intermediate, or advanced).'),
+  complexityRating: z.enum(['iniciante', 'intermediário', 'avançado']).describe('Overall project complexity rating (beginner, intermediate, or advanced).'),
 });
 export type ProjectEffortComplexityOutput = z.infer<typeof ProjectEffortComplexityOutputSchema>;
 
@@ -29,7 +29,7 @@ const projectEffortComplexityPrompt = ai.definePrompt({
   name: 'projectEffortComplexityPrompt',
   input: {schema: ProjectEffortComplexityInputSchema},
   output: {schema: ProjectEffortComplexityOutputSchema},
-  prompt: `You are an expert freelance project analyst. Your task is to evaluate a project description and determine its complexity and recommended time commitment, specifically considering the freelancer's listed skills.\n\nProject Description: {{{projectDescription}}}\n\nFreelancer's Skills:\n{{#each userSkills}}\n- {{{this}}}\n{{/each}}\n\nBased on the project description and the freelancer's skills, provide a recommended time commitment and an overall project complexity rating. The complexity rating should be one of 'beginner', 'intermediate', or 'advanced'. The time commitment should be a clear estimate (e.g., 'X-Y weeks' or 'A-B hours').`,
+  prompt: `Você é um analista especialista em projetos freelance. Sua tarefa é avaliar a descrição de um projeto e determinar sua complexidade e o tempo de dedicação recomendado, considerando especificamente as habilidades listadas do freelancer.\\n\\nDescrição do Projeto: {{{projectDescription}}}\\n\\nHabilidades do Freelancer:\\n{{#each userSkills}}\\n- {{{this}}}\\n{{/each}}\\n\\nCom base na descrição do projeto e nas habilidades do freelancer, forneça uma recomendação de tempo de dedicação e uma classificação geral de complexidade do projeto. A classificação de complexidade deve ser 'iniciante', 'intermediário' ou 'avançado'. A dedicação de tempo deve ser uma estimativa clara (por exemplo, '2-4 semanas' ou '80-120 horas').`,
 });
 
 // Define the Genkit flow for estimating project effort and complexity.

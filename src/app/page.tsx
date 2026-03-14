@@ -40,7 +40,7 @@ export default function Home() {
     if ('error' in result) {
       toast({
         variant: 'destructive',
-        title: 'An error occurred',
+        title: 'Ocorreu um erro',
         description: result.error,
       });
     } else {
@@ -52,8 +52,8 @@ export default function Home() {
   const handleAddSkills = (newSkills: string[]) => {
     addMultipleSkills(newSkills);
     toast({
-        title: "Skills Updated",
-        description: "New skills have been added to your profile.",
+        title: "Habilidades Atualizadas",
+        description: "Novas habilidades foram adicionadas ao seu perfil.",
     });
   }
 
@@ -71,15 +71,9 @@ export default function Home() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <div className="flex flex-col h-screen">
-          <header className="p-4 border-b flex items-center gap-4">
-            <SidebarTrigger className="md:hidden" />
-            <div className="md:hidden">
-                <Logo className="text-foreground text-xl" />
-            </div>
-            <h1 className="text-xl font-semibold font-headline hidden md:block">
-              Project Strategy Dashboard
-            </h1>
+        <div className="flex flex-col h-screen bg-background">
+          <header className="p-4 border-b flex items-center gap-4 shrink-0">
+            <SidebarTrigger />
           </header>
           <main className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="max-w-4xl mx-auto h-full flex flex-col">

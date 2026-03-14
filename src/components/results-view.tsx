@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Badge, badgeVariants } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Award, BrainCircuit, ClipboardList, Clock, Plus, Wrench } from 'lucide-react';
 import type { ProjectAnalysis } from '@/lib/types';
@@ -20,15 +20,19 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
 
   const difficulty = strategy.projectDifficulty || effort.complexityRating;
   
-  type Difficulty = typeof difficulty;
-
-  const difficultyVariants: Record<Difficulty, 'secondary' | 'default' | 'destructive'> = {
+  const difficultyVariants: Record<string, 'secondary' | 'default' | 'destructive'> = {
     Beginner: 'secondary',
     Intermediate: 'default',
     Advanced: 'destructive',
     beginner: 'secondary',
     intermediate: 'default',
     advanced: 'destructive',
+    Iniciante: 'secondary',
+    Intermediário: 'default',
+    Avançado: 'destructive',
+    iniciante: 'secondary',
+    intermediário: 'default',
+    avançado: 'destructive',
   };
 
   return (
@@ -36,7 +40,7 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
       <Card className="shadow-lg rounded-xl">
         <CardHeader>
           <div className="flex flex-wrap items-start gap-4">
-            <CardTitle className="font-headline text-2xl lg:text-3xl">Project Blueprint</CardTitle>
+            <CardTitle className="font-headline text-2xl lg:text-3xl">Plano do Projeto</CardTitle>
             <div className="flex-grow" />
             <div className="flex flex-wrap gap-2">
               <Badge variant={difficultyVariants[difficulty]} className="text-sm py-1 px-3">
@@ -56,7 +60,7 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
               <AccordionTrigger className="text-lg font-semibold hover:no-underline">
                 <div className="flex items-center gap-3">
                   <ClipboardList className="h-5 w-5 text-accent" />
-                  Execution Plan
+                  Plano de Execução
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-4 pl-4 border-l-2 ml-4">
@@ -76,7 +80,7 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
                  <AccordionTrigger className="text-lg font-semibold hover:no-underline">
                    <div className="flex items-center gap-3">
                      <Award className="h-5 w-5 text-accent" />
-                     Suggested Skills
+                     Habilidades Sugeridas
                    </div>
                  </AccordionTrigger>
                  <AccordionContent className="pt-4 pl-4 border-l-2 ml-4 space-y-4">
@@ -88,7 +92,7 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
                     </div>
                     <Button onClick={() => onAddSkills(gaps.missingSkills)} variant="ghost" className="text-accent hover:text-accent">
                         <Plus className="mr-2 h-4 w-4"/>
-                        Add these skills to my profile
+                        Adicionar estas habilidades ao meu perfil
                     </Button>
                  </AccordionContent>
                </AccordionItem>
@@ -98,7 +102,7 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
               <AccordionTrigger className="text-lg font-semibold hover:no-underline">
                 <div className="flex items-center gap-3">
                   <AlertTriangle className="h-5 w-5 text-accent" />
-                  Potential Challenges
+                  Desafios Potenciais
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-4 pl-4 border-l-2 ml-4">
@@ -114,7 +118,7 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
               <AccordionTrigger className="text-lg font-semibold hover:no-underline">
                 <div className="flex items-center gap-3">
                   <Wrench className="h-5 w-5 text-accent" />
-                  Resource Suggestions
+                  Sugestões de Recursos
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-4 pl-4 border-l-2 ml-4">

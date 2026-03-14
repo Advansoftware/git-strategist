@@ -29,13 +29,13 @@ export function SkillManager() {
     <SidebarGroup>
       <SidebarGroupLabel className="flex items-center gap-2">
         <Award className="size-4" />
-        My Skills
+        Minhas Habilidades
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <div className="flex gap-2 mb-4">
           <Input
             type="text"
-            placeholder="Add a new skill..."
+            placeholder="Adicionar nova habilidade..."
             value={newSkill}
             onChange={(e) => setNewSkill(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddSkill()}
@@ -62,7 +62,7 @@ export function SkillManager() {
               </Badge>
             ))
           ) : (
-            <p className="text-xs text-sidebar-foreground/70 px-2">No skills added yet. Add skills to improve AI analysis.</p>
+            <p className="text-xs text-sidebar-foreground/70 px-2">Nenhuma habilidade adicionada ainda. Adicione habilidades para melhorar a análise da IA.</p>
           )}
         </div>
       </SidebarGroupContent>

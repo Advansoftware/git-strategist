@@ -29,7 +29,7 @@ export function ChatForm({ onSubmit, prompt, setPrompt, isLoading }: ChatFormPro
       <Card className="p-2 shadow-lg rounded-xl border-2 border-transparent focus-within:border-primary transition-colors">
         <Textarea
           name="prompt"
-          placeholder="Paste your freelance project description here..."
+          placeholder="Cole a descrição do seu projeto freelancer aqui..."
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -40,7 +40,7 @@ export function ChatForm({ onSubmit, prompt, setPrompt, isLoading }: ChatFormPro
         <div className="absolute bottom-4 right-4 flex items-center gap-2">
             <Button type="submit" size="icon" disabled={isLoading || !prompt.trim()} className="rounded-lg bg-accent hover:bg-accent/90">
                 <SendHorizonal className="h-5 w-5" />
-                <span className="sr-only">Generate Plan</span>
+                <span className="sr-only">Gerar Plano</span>
             </Button>
         </div>
       </Card>

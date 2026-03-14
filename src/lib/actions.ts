@@ -10,7 +10,7 @@ export async function getProjectAnalysis(
   userSkills: string[]
 ): Promise<ProjectAnalysis | { error: string }> {
   if (!projectDescription) {
-    return { error: 'Project description cannot be empty.' };
+    return { error: 'A descrição do projeto não pode estar vazia.' };
   }
 
   try {
@@ -23,6 +23,6 @@ export async function getProjectAnalysis(
     return { strategy, gaps, effort };
   } catch (error) {
     console.error('Error getting project analysis:', error);
-    return { error: 'Failed to generate project analysis. Please try again.' };
+    return { error: 'Falha ao gerar a análise do projeto. Por favor, tente novamente.' };
   }
 }
