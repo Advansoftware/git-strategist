@@ -92,10 +92,8 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
                 {proposal.sections.map((section, index) => (
                   <div key={index}>
                     <h4 className="font-semibold text-base mb-2">{index + 1}. {section.title}</h4>
-                    <p className="text-muted-foreground mb-2">{section.content}</p>
-                    <div className="text-sm p-3 bg-muted/50 rounded-md border border-dashed">
-                        <p className="font-semibold text-muted-foreground/80 mb-1">Exemplo:</p>
-                        <p className="italic">"{section.example}"</p>
+                    <div className="text-base p-4 bg-muted/50 rounded-md border whitespace-pre-wrap">
+                      {section.suggestedText}
                     </div>
                   </div>
                 ))}
