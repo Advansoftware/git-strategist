@@ -51,7 +51,7 @@ const projectEffortComplexityEstimationFlow = ai.defineFlow(
     outputSchema: ProjectEffortComplexityOutputSchema,
   },
   async (input) => {
-    const {output} = await projectEffortComplexityPrompt(input);
+    const {output} = await projectEffortComplexityPrompt(input, { model: 'gemini-pro' });
     if (!output) {
       throw new Error('Failed to generate project effort and complexity estimation.');
     }
