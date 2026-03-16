@@ -5,6 +5,7 @@ import type { ProjectAnalysis } from '@/lib/types';
 import { ProjectSummary } from './analysis/project-summary';
 import { ExecutionPlan } from './analysis/execution-plan';
 import { ProposalStructure } from './analysis/proposal-structure';
+import { BrunoProposal } from './analysis/bruno-proposal';
 import { SuggestedSkills } from './analysis/suggested-skills';
 import { PotentialChallenges } from './analysis/potential-challenges';
 import { ResourceSuggestions } from './analysis/resource-suggestions';
@@ -15,7 +16,7 @@ interface ResultsViewProps {
 }
 
 export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
-  const { strategy, gaps, effort, price, proposal } = analysis;
+  const { strategy, gaps, effort, price, proposal, brunoProposal } = analysis;
 
   return (
     <div className="space-y-6 animate-in fade-in-50 duration-500">
@@ -28,7 +29,8 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <Accordion type="multiple" defaultValue={['execution-plan', 'proposal-structure']} className="w-full">
+          <Accordion type="multiple" defaultValue={['bruno-proposal', 'execution-plan', 'proposal-structure']} className="w-full">
+            <BrunoProposal proposal={brunoProposal} />
             <ExecutionPlan plan={strategy.executionPlan} />
             <ProposalStructure proposal={proposal} />
             <SuggestedSkills gaps={gaps} onAddSkills={onAddSkills} />

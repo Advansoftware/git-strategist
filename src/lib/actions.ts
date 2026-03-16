@@ -5,6 +5,7 @@ import { identifySkillGaps } from '@/ai/flows/skill-gap-identification-flow';
 import { estimateProjectEffortAndComplexity } from '@/ai/flows/project-effort-complexity-estimation';
 import { estimateProjectPrice } from '@/ai/flows/project-price-estimation';
 import { generateProposalStructure } from '@/ai/flows/proposal-structure-flow';
+import { generateBrunoProposal } from '@/ai/flows/bruno-proposal-pattern';
 import type { ProjectAnalysis } from '@/lib/types';
 
 export async function getProjectAnalysis(
@@ -29,7 +30,13 @@ export async function getProjectAnalysis(
       generateProposalStructure(commonInput),
     ]);
 
-    return { strategy, gaps, effort, price, proposal };
+    const brunoProposal = await generateBrunoProposal({
+      ...commonInput,
+      suggestedPrice: price.suggestedPrice,
+      timeCommitment: effort.timeCommitment,
+    });
+
+    return { strategy, gaps, effort, price, proposal, brunoProposal };
   } catch (error) {
     console.error('AI API call failed:', error);
     if (error instanceof Error) {
