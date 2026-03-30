@@ -15,6 +15,8 @@ import {
 } from '@/lib/knowledge-base';
 import { loadSkills, saveSkills, addSkill as addSkillToStore, removeSkill as removeSkillFromStore } from '@/lib/skills-store';
 import type { ProjectAnalysis } from '@/lib/types';
+import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 
 export async function getProjectAnalysis(
   projectDescription: string,
@@ -179,4 +181,18 @@ export async function removeSkill(skill: string): Promise<{ success: true } | { 
     }
     return { error: 'Falha ao remover habilidade.' };
   }
+}
+
+export async function setAIProvider(provider: 'gemini' | 'openai') {
+  const cookieStore = await cookies();
+  cookieStore.set('PREFERRED_AI_PROVIDER', provider, {
+    path: '/',
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  });
+  revalidatePath('/');
+}
+
+export async function getAIProvider() {
+  const cookieStore = await cookies();
+  return cookieStore.get('PREFERRED_AI_PROVIDER')?.value || 'gemini';
 }

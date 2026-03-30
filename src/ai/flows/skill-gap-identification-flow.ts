@@ -7,7 +7,7 @@
  * - SkillGapOutput - The return type for the identifySkillGaps function.
  */
 
-import {ai, geminiModel} from '@/ai/genkit';
+import {ai, getActiveModel} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SkillGapInputSchema = z.object({
@@ -69,7 +69,7 @@ const skillGapIdentificationFlow = ai.defineFlow(
     outputSchema: SkillGapOutputSchema,
   },
   async input => {
-    const {output} = await skillGapIdentificationPrompt(input, { model: geminiModel });
+    const {output} = await skillGapIdentificationPrompt(input, { model: await getActiveModel() });
     if (!output) {
       throw new Error('Failed to generate skill gap identification.');
     }

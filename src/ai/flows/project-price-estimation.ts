@@ -7,7 +7,7 @@
  * - ProjectPriceOutput - The return type for the estimateProjectPrice function.
  */
 
-import {ai, geminiModel} from '@/ai/genkit';
+import {ai, getActiveModel} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { ProposalAnalysis } from '@/ai/flows/analyze-proposal-strengths';
 
@@ -86,7 +86,7 @@ const projectPriceEstimationFlow = ai.defineFlow(
     outputSchema: ProjectPriceOutputSchema,
   },
   async (input) => {
-    const {output} = await projectPricePrompt(input, { model: geminiModel });
+    const {output} = await projectPricePrompt(input, { model: await getActiveModel() });
     if (!output) {
       throw new Error('Failed to generate project price estimation.');
     }

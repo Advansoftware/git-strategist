@@ -33,39 +33,34 @@ export function useSkills() {
     };
   }, []);
 
-  // Save skills to server whenever they change
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    async function persist() {
-      try {
-        await saveSkillsList(skills);
-      } catch (error) {
-        console.error('Failed to save skills:', error);
-      }
+  const addSkill = useCallback(async (skill: string) => {
+    if (!skill || skills.some(s => s.toLowerCase() === skill.toLowerCase())) {
+      return { success: true }; // Already exists or empty
     }
 
-    persist();
-  }, [skills, isLoaded]);
-
-  const addSkill = useCallback(async (skill: string) => {
-    if (skill && !skills.includes(skill)) {
-      const result = await addSkillAction(skill);
-      if ('success' in result) {
-        setSkills(prevSkills => [...prevSkills, skill]);
-      } else {
-        console.error('Failed to add skill:', result.error);
-      }
+    const result = await addSkillAction(skill);
+    if ('success' in result) {
+      setSkills(prevSkills => {
+        const next = [...prevSkills, skill];
+        return Array.from(new Set(next));
+      });
+      return { success: true };
+    } else {
+      console.error('Failed to add skill:', result.error);
+      return { error: result.error };
     }
   }, [skills]);
 
   const addMultipleSkills = useCallback(async (newSkills: string[]) => {
-    const skillsToAdd = newSkills.filter(s => s && !skills.includes(s));
+    const skillsToAdd = newSkills.filter(s => s && !skills.some(existing => existing.toLowerCase() === s.toLowerCase()));
     if (skillsToAdd.length > 0) {
-      // Add all skills to server
-      await Promise.all(skillsToAdd.map(s => addSkillAction(s)));
-      // Update local state
-      setSkills(prevSkills => [...prevSkills, ...skillsToAdd]);
+      // Add all skills via server actions
+      const results = await Promise.all(skillsToAdd.map(s => addSkillAction(s)));
+      const failed = results.find(r => 'error' in r);
+      
+      if (!failed) {
+        setSkills(prevSkills => [...prevSkills, ...skillsToAdd]);
+      }
     }
   }, [skills]);
 
@@ -73,8 +68,10 @@ export function useSkills() {
     const result = await removeSkillAction(skillToRemove);
     if ('success' in result) {
       setSkills(prevSkills => prevSkills.filter(skill => skill !== skillToRemove));
+      return { success: true };
     } else {
       console.error('Failed to remove skill:', result.error);
+      return { error: result.error };
     }
   }, []);
 

@@ -7,7 +7,7 @@
  * - ProjectStrategyBlueprintOutput - The return type for the projectStrategyBlueprint function.
  */
 
-import {ai, geminiModel} from '@/ai/genkit';
+import {ai, getActiveModel} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ProjectStrategyBlueprintInputSchema = z.object({
@@ -90,7 +90,7 @@ const projectStrategyBlueprintFlow = ai.defineFlow(
     outputSchema: ProjectStrategyBlueprintOutputSchema,
   },
   async input => {
-    const {output} = await projectStrategyBlueprintPrompt(input, { model: geminiModel });
+    const {output} = await projectStrategyBlueprintPrompt(input, { model: await getActiveModel() });
     if (!output) {
       throw new Error('Failed to generate project strategy blueprint.');
     }

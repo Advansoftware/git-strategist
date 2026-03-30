@@ -5,7 +5,7 @@
  * from the static KB and synthesizes the winning formula.
  */
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, getActiveModel } from '@/ai/genkit';
 import { z } from 'genkit';
 import { findSimilarProposals } from '@/lib/knowledge-base';
 import type { ProposalAnalysis } from '@/ai/flows/analyze-proposal-strengths';
@@ -153,7 +153,7 @@ const brunoProposalFlow = ai.defineFlow(
         knowledgeBaseSection,
         referencesCount,
       },
-      { model: geminiModel }
+      { model: await getActiveModel() }
     );
 
     if (!output || !output.proposal) {

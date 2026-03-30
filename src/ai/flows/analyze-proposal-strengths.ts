@@ -5,7 +5,7 @@
  * Runs once during knowledge base ingest.
  */
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, getActiveModel } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const AnalyzeInputSchema = z.object({
@@ -88,7 +88,7 @@ const analyzeFlow = ai.defineFlow(
     outputSchema: ProposalAnalysisSchema,
   },
   async (input) => {
-    const { output } = await analyzePrompt(input, { model: geminiModel });
+    const { output } = await analyzePrompt(input, { model: await getActiveModel() });
     if (!output) {
       throw new Error('Failed to analyze proposal strengths.');
     }

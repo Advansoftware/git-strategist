@@ -2,8 +2,7 @@
 
 import { readFileSync, writeFileSync, unlinkSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { ai, geminiModel } from '@/ai/genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+import { ai, getActiveModel, getActiveEmbedder } from '@/ai/genkit';
 import { analyzeProposalStrengths, type ProposalAnalysis } from '@/ai/flows/analyze-proposal-strengths';
 
 // --- Paths ---
@@ -55,10 +54,9 @@ function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 // --- Embedding ---
-const embedder = googleAI.embedder('gemini-embedding-001');
-
 async function generateEmbedding(text: string): Promise<number[]> {
-  const result = await ai.embed({ embedder, content: text });
+  const embedder = await getActiveEmbedder();
+  const result = await ai.embed({ embedder: embedder as any, content: text });
   // ai.embed returns an array of { embedding: number[] } objects
   if (Array.isArray(result) && result.length > 0 && 'embedding' in result[0]) {
     return (result as Array<{ embedding: number[] }>)[0].embedding;
@@ -69,8 +67,9 @@ async function generateEmbedding(text: string): Promise<number[]> {
 
 // --- PDF Extraction ---
 export async function extractTextFromPdf(base64Data: string): Promise<string> {
+  const model = await getActiveModel();
   const response = await ai.generate({
-    model: geminiModel,
+    model,
     prompt: [
       {
         text: 'Extraia TODO o texto deste documento PDF. Retorne apenas o texto puro, sem formatação adicional, resumos ou comentários. Mantenha a estrutura original do texto.',

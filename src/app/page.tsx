@@ -18,6 +18,7 @@ import { KnowledgeBaseManager } from '@/components/knowledge-base-manager';
 import { Logo } from '@/components/logo';
 import { ChatInterface } from '@/components/chat-interface';
 import { Separator } from '@/components/ui/separator';
+import { AIProviderToggle } from '@/components/ai-provider-toggle';
 
 export default function Home() {
   const { skills, addMultipleSkills, isLoaded: skillsLoaded } = useSkills();
@@ -62,9 +63,11 @@ export default function Home() {
       </Sidebar>
       <SidebarInset>
         <div className="flex flex-col h-screen">
-          <header className="p-4 border-b flex items-center gap-4 shrink-0 h-16">
-            <SidebarTrigger />
-            <div className="flex-grow" />
+          <header className="p-4 border-b flex items-center justify-between shrink-0 h-16">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+            </div>
+            <AIProviderToggle />
           </header>
           <ChatInterface
             messages={messages}
