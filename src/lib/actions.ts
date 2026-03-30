@@ -11,6 +11,7 @@ import {
   listAllProposals,
   removeProposal,
   findSimilarProposals,
+  getProposalDetails
 } from '@/lib/knowledge-base';
 import { loadSkills, saveSkills, addSkill as addSkillToStore, removeSkill as removeSkillFromStore } from '@/lib/skills-store';
 import type { ProjectAnalysis } from '@/lib/types';
@@ -99,6 +100,15 @@ export async function getKnowledgeBaseProposals() {
   } catch (error) {
     console.error('Failed to list KB proposals:', error);
     return [];
+  }
+}
+
+export async function getKnowledgeBaseProposalDetails(id: string) {
+  try {
+    return await getProposalDetails(id);
+  } catch (error) {
+    console.error('Failed to get KB proposal details:', error);
+    return null;
   }
 }
 

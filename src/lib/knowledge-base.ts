@@ -245,3 +245,35 @@ export async function removeProposal(id: string): Promise<void> {
   const filtered = records.filter((r) => r.id !== id);
   writeVectors(filtered);
 }
+
+/**
+ * Gets the details of a specific proposal by ID.
+ */
+export async function getProposalDetails(id: string): Promise<{
+  id: string;
+  createdAt: string;
+  projectValue?: string;
+  tags: string[];
+  analysis: ProposalAnalysis;
+  content: string;
+} | null> {
+  const records = readVectors();
+  const record = records.find((r) => r.id === id);
+  if (!record) return null;
+
+  let content = '';
+  try {
+    content = readFileSync(join(PROPOSALS_DIR, record.fileName), 'utf-8');
+  } catch {
+    content = '(Arquivo de texto da proposta não encontrado)';
+  }
+
+  return {
+    id: record.id,
+    createdAt: record.createdAt,
+    projectValue: record.projectValue,
+    tags: record.tags,
+    analysis: record.analysis,
+    content,
+  };
+}

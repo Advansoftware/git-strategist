@@ -27,6 +27,7 @@ import {
   saveProposalToKnowledgeBase,
   getKnowledgeBaseProposals,
   deleteProposalFromKnowledgeBase,
+  getKnowledgeBaseProposalDetails,
 } from '@/lib/actions';
 
 type KBProposal = {
@@ -45,6 +46,11 @@ export function KnowledgeBaseManager() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Details Modal State
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [selectedProposalDetails, setSelectedProposalDetails] = useState<any>(null);
 
   // Form state
   const [proposalText, setProposalText] = useState('');
@@ -130,7 +136,8 @@ export function KnowledgeBaseManager() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     setDeletingId(id);
     try {
       const result = await deleteProposalFromKnowledgeBase(id);
@@ -146,6 +153,23 @@ export function KnowledgeBaseManager() {
       }
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleViewDetails = async (id: string) => {
+    setIsLoadingDetails(true);
+    setIsDetailsOpen(true);
+    try {
+      const details = await getKnowledgeBaseProposalDetails(id);
+      setSelectedProposalDetails(details);
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Falha ao carregar os detalhes da proposta.',
+      });
+    } finally {
+      setIsLoadingDetails(false);
     }
   };
 
@@ -255,6 +279,105 @@ export function KnowledgeBaseManager() {
           </DialogContent>
         </Dialog>
 
+        <Dialog open={isDetailsOpen} onOpenChange={(open) => {
+          setIsDetailsOpen(open);
+          if (!open) setTimeout(() => setSelectedProposalDetails(null), 300);
+        }}>
+          <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-hidden flex flex-col p-0">
+            <DialogHeader className="p-6 pb-4 border-b shrink-0">
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <BookOpen className="h-5 w-5 text-primary" />
+                Detalhes da Proposta
+              </DialogTitle>
+            </DialogHeader>
+            <div className="overflow-y-auto flex-1 p-6">
+              {isLoadingDetails ? (
+                <div className="flex flex-col items-center justify-center p-12 text-muted-foreground gap-3">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                  <p>Buscando detalhes do aprendizado...</p>
+                </div>
+              ) : selectedProposalDetails ? (
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge className={`px-2 py-0.5 text-sm gap-1 ${getScoreColor(selectedProposalDetails.analysis.overallScore)}`}>
+                        <Star className="h-4 w-4 fill-current" />
+                        Score: {selectedProposalDetails.analysis.overallScore}/10
+                      </Badge>
+                      {selectedProposalDetails.projectValue && (
+                        <Badge variant="secondary" className="px-2 py-0.5 text-sm">
+                          Valor: {selectedProposalDetails.projectValue}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-semibold text-foreground">Tags Identificadas</h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedProposalDetails.tags.map((tag: string) => (
+                          <Badge key={tag} variant="outline" className="bg-muted/50">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                      <div className="space-y-4 rounded-lg bg-muted/50 p-4 border text-sm">
+                        <div>
+                          <span className="font-semibold block mb-1">Qualificação Geral (IA):</span>
+                          <span className="text-muted-foreground">{selectedProposalDetails.analysis.qualificationSummary}</span>
+                        </div>
+                        <div>
+                          <span className="font-semibold block mb-1">Qualificação de Valor:</span>
+                          <span className="text-muted-foreground">{selectedProposalDetails.analysis.valueQualification}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4 rounded-lg bg-muted/50 p-4 border text-sm">
+                        <div>
+                          <span className="font-semibold block mb-1">Tipo de Hook:</span>
+                          <span className="text-muted-foreground">{selectedProposalDetails.analysis.hookType}</span>
+                        </div>
+                        <div>
+                          <span className="font-semibold block mb-1">Técnica de Persuasão:</span>
+                          <span className="text-muted-foreground">{selectedProposalDetails.analysis.persuasionTechnique}</span>
+                        </div>
+                        <div>
+                          <span className="font-semibold block mb-1">Força do CTA:</span>
+                          <span className="text-muted-foreground">{selectedProposalDetails.analysis.ctaStrength}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedProposalDetails.analysis.uniqueStrengths?.length > 0 && (
+                      <div className="space-y-2 mt-4">
+                        <h4 className="text-sm font-semibold text-foreground">Pontos Fortes Únicos</h4>
+                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                          {selectedProposalDetails.analysis.uniqueStrengths.map((strength: string, i: number) => (
+                            <li key={i}>{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <h3 className="text-lg font-semibold mb-4">Conteúdo Original</h3>
+                    <div className="prose prose-sm dark:prose-invert max-w-none bg-muted/30 p-4 rounded-lg border whitespace-pre-wrap font-mono text-xs">
+                      {selectedProposalDetails.content}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-8 text-center text-muted-foreground">
+                  Nenhum detalhe encontrado para esta proposta.
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <div className="space-y-2">
           {!isLoaded ? (
             <>
@@ -265,7 +388,8 @@ export function KnowledgeBaseManager() {
             proposals.map((p) => (
               <div
                 key={p.id}
-                className="relative group p-2.5 rounded-lg bg-sidebar-accent/50 border border-sidebar-border text-sm space-y-1.5"
+                className="relative group p-2.5 rounded-lg bg-sidebar-accent/50 border border-sidebar-border text-sm space-y-1.5 cursor-pointer hover:bg-sidebar-accent transition-colors"
+                onClick={() => handleViewDetails(p.id)}
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 min-w-0">
@@ -277,13 +401,13 @@ export function KnowledgeBaseManager() {
                       {p.projectValue || 'S/ Valor'}
                     </span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => handleDelete(p.id)}
-                    disabled={deletingId === p.id}
-                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={(e) => handleDelete(e, p.id)}
+                      disabled={deletingId === p.id}
+                    >
                     {deletingId === p.id ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
                     ) : (
