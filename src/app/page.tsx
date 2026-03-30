@@ -14,8 +14,10 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { SkillManager } from '@/components/skill-manager';
+import { KnowledgeBaseManager } from '@/components/knowledge-base-manager';
 import { Logo } from '@/components/logo';
 import { ChatInterface } from '@/components/chat-interface';
+import { Separator } from '@/components/ui/separator';
 
 export default function Home() {
   const { skills, addMultipleSkills, isLoaded: skillsLoaded } = useSkills();
@@ -51,6 +53,8 @@ export default function Home() {
         </SidebarHeader>
         <SidebarContent>
           <SkillManager />
+          <Separator className="my-2 bg-sidebar-border" />
+          <KnowledgeBaseManager />
         </SidebarContent>
         <SidebarFooter>
           <p className="text-xs text-center text-sidebar-foreground/50">© 2024 Gig Strategist</p>
