@@ -11,7 +11,9 @@ import {
   listAllProposals,
   removeProposal,
   findSimilarProposals,
-  getProposalDetails
+  getProposalDetails,
+  getSyncStatus,
+  performSync
 } from '@/lib/knowledge-base';
 import { loadSkills, saveSkills, addSkill as addSkillToStore, removeSkill as removeSkillFromStore } from '@/lib/skills-store';
 import type { ProjectAnalysis } from '@/lib/types';
@@ -195,4 +197,27 @@ export async function setAIProvider(provider: 'gemini' | 'openai') {
 export async function getAIProvider() {
   const cookieStore = await cookies();
   return cookieStore.get('PREFERRED_AI_PROVIDER')?.value || 'gemini';
+}
+
+export async function getKnowledgeBaseSyncStatus() {
+  try {
+    return await getSyncStatus();
+  } catch (error) {
+    console.error('Failed to get KB sync status:', error);
+    return { total: 0, outOfSync: 0, missingGemini: 0, missingOpenAI: 0 };
+  }
+}
+
+export async function syncKnowledgeBase() {
+  try {
+    const result = await performSync();
+    revalidatePath('/');
+    return { success: true, ...result };
+  } catch (error) {
+    console.error('Failed to sync KB:', error);
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: 'Falha ao sincronizar a base de conhecimento.' };
+  }
 }

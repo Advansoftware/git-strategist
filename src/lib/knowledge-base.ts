@@ -2,7 +2,17 @@
 
 import { readFileSync, writeFileSync, unlinkSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { ai, getActiveModel, getActiveEmbedder } from '@/ai/genkit';
+import { 
+  ai, 
+  getActiveModel, 
+  getActiveEmbedder, 
+  getEmbedderByDimension, 
+  getActiveProvider,
+  geminiEmbedder,
+  gptLargeEmbedder,
+  isGeminiConfigured,
+  isOpenAIConfigured
+} from '@/ai/genkit';
 import { analyzeProposalStrengths, type ProposalAnalysis } from '@/ai/flows/analyze-proposal-strengths';
 
 // --- Paths ---
@@ -18,7 +28,11 @@ export type VectorRecord = {
   projectValue?: string;
   tags: string[];
   analysis: ProposalAnalysis;
-  embedding: number[];
+  embeddings: {
+    gemini?: number[];
+    openai?: number[];
+  };
+  embedding?: number[]; // Legado
 };
 
 // --- Helpers ---
@@ -39,29 +53,40 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function cosineSimilarity(a: number[], b: number[]): number {
-  if (a.length !== b.length || a.length === 0) return 0;
+function cosineSimilarity(vecA: number[], vecB: number[]): number {
+  if (vecA.length !== vecB.length) {
+    console.warn(`[KB] Dimension mismatch detectado! Query: ${vecA.length}, Record: ${vecB.length}. Similaridade zerada para evitar erro.`);
+    return 0;
+  }
+  if (vecA.length === 0) return 0;
+  
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;
-  for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
+  
+  for (let i = 0; i < vecA.length; i++) {
+    dotProduct += vecA[i] * vecB[i];
+    normA += vecA[i] * vecA[i];
+    normB += vecB[i] * vecB[i];
   }
+  
   const denominator = Math.sqrt(normA) * Math.sqrt(normB);
   return denominator === 0 ? 0 : dotProduct / denominator;
 }
 
 // --- Embedding ---
-async function generateEmbedding(text: string): Promise<number[]> {
-  const embedder = await getActiveEmbedder();
-  const result = await ai.embed({ embedder: embedder as any, content: text });
-  // ai.embed returns an array of { embedding: number[] } objects
-  if (Array.isArray(result) && result.length > 0 && 'embedding' in result[0]) {
+async function generateEmbedding(text: string, forceEmbedder?: unknown): Promise<number[]> {
+  const activeEmbedder = await getActiveEmbedder();
+  const embedder = forceEmbedder || activeEmbedder;
+  
+  const result = await ai.embed({ 
+    embedder: embedder as Parameters<typeof ai.embed>[0]['embedder'], 
+    content: text 
+  });
+
+  if (Array.isArray(result) && result.length > 0 && typeof result[0] === 'object' && 'embedding' in (result[0] as object)) {
     return (result as Array<{ embedding: number[] }>)[0].embedding;
   }
-  // If it already returns a flat number array (older API versions)
   return result as unknown as number[];
 }
 
@@ -89,10 +114,7 @@ export async function extractTextFromPdf(base64Data: string): Promise<string> {
 
 /**
  * Adds a new proposal to the knowledge base.
- * 1. Extracts text from PDF (if provided).
- * 2. Analyzes the proposal for strengths via AI.
- * 3. Generates embedding vector.
- * 4. Saves .md file and updates vectors.json.
+ * Generates BOTH Gemini and OpenAI embeddings for maximum compatibility.
  */
 export async function ingestProposal(
   text: string,
@@ -108,11 +130,29 @@ export async function ingestProposal(
     fullText = `${text}\n\n--- ANEXO (extraído de PDF) ---\n${pdfExtractedText}`;
   }
 
-  // Run AI analysis and embedding generation in parallel
-  const [analysis, embedding] = await Promise.all([
-    analyzeProposalStrengths(fullText, projectValue),
-    generateEmbedding(fullText),
-  ]);
+  // Generate analysis and hybrid embeddings
+  const analysis = await analyzeProposalStrengths(fullText, projectValue);
+  
+  const embeddings: { gemini?: number[]; openai?: number[] } = {};
+  
+  console.log('[KB] Generating hybrid embeddings...');
+  const embedPromises = [];
+
+  // Try Gemini
+  embedPromises.push(
+    generateEmbedding(fullText, geminiEmbedder)
+      .then(v => { embeddings.gemini = v; })
+      .catch(e => console.warn('[KB] Gemini embedding failed:', e.message))
+  );
+
+  // Try OpenAI (Large by default for new ingestions)
+  embedPromises.push(
+    generateEmbedding(fullText, gptLargeEmbedder)
+      .then(v => { embeddings.openai = v; })
+      .catch(e => console.warn('[KB] OpenAI embedding failed:', e.message))
+  );
+
+  await Promise.all(embedPromises);
 
   // Generate record
   const id = generateId();
@@ -145,7 +185,7 @@ export async function ingestProposal(
     projectValue,
     tags: analysis.tags,
     analysis,
-    embedding,
+    embeddings,
   });
   writeVectors(records);
 
@@ -154,7 +194,7 @@ export async function ingestProposal(
 
 /**
  * Finds the most similar proposals to a given query text.
- * Returns the top N proposals with their full content and analysis.
+ * Uses provider-specific embeddings for the search.
  */
 export async function findSimilarProposals(
   query: string,
@@ -169,18 +209,42 @@ export async function findSimilarProposals(
   }>
 > {
   const records = readVectors();
-  if (records.length === 0) return [];
+  if (records.length === 0) {
+    console.log('[KB] Zero records in KB.');
+    return [];
+  }
+
+  const provider = await getActiveProvider();
+  console.log(`[KB] Searching using "${provider}" vector memory...`);
 
   const queryEmbedding = await generateEmbedding(query);
 
   // Calculate similarity for all records
-  const scored = records.map((record) => ({
-    ...record,
-    similarity: cosineSimilarity(queryEmbedding, record.embedding),
-  }));
+  const scored = records.map((record) => {
+    // 1. Try match the current provider
+    let targetVector = record.embeddings?.[provider as keyof typeof record.embeddings];
+    
+    // 2. Fallback to legacy single vector if dimensions match
+    if (!targetVector && record.embedding) {
+      if (record.embedding.length === queryEmbedding.length) {
+        targetVector = record.embedding;
+      }
+    }
+
+    return {
+      ...record,
+      similarity: targetVector ? cosineSimilarity(queryEmbedding, targetVector) : 0,
+    };
+  });
 
   // Sort by similarity (highest first), take top N
   scored.sort((a, b) => b.similarity - a.similarity);
+  
+  // Log top similarity score for debugging
+  if (scored.length > 0) {
+    console.log(`[KB] Best similarity score (${provider}): ${(scored[0].similarity * 100).toFixed(1)}%`);
+  }
+
   const topN = scored.slice(0, limit);
 
   // Load the .md content for each result
@@ -275,4 +339,85 @@ export async function getProposalDetails(id: string): Promise<{
     analysis: record.analysis,
     content,
   };
+}
+
+/**
+ * Gets the current synchronization status of the KB embeddings.
+ */
+export async function getSyncStatus(): Promise<{
+  total: number;
+  outOfSync: number;
+  provider: string;
+}> {
+  const records = readVectors();
+  const provider = await getActiveProvider();
+  const hasKey = provider === 'gemini' ? isGeminiConfigured() : isOpenAIConfigured();
+
+  if (!hasKey) {
+    return { total: records.length, outOfSync: 0, provider };
+  }
+
+  const outOfSync = records.filter(r => {
+    if (provider === 'gemini') return !r.embeddings?.gemini;
+    if (provider === 'openai') return !r.embeddings?.openai;
+    return false;
+  }).length;
+
+  return {
+    total: records.length,
+    outOfSync,
+    provider,
+  };
+}
+
+/**
+ * Performs a synchronization by generating missing embeddings for all records.
+ * Only syncs the currently active provider to avoid unnecessary errors/calls.
+ */
+export async function performSync(): Promise<{ synchronized: number; errors: number }> {
+  const records = readVectors();
+  const provider = await getActiveProvider();
+  const embedder = provider === 'gemini' ? geminiEmbedder : gptLargeEmbedder;
+  
+  let synchronized = 0;
+  let errors = 0;
+
+  for (const record of records) {
+    const needsSync = provider === 'gemini' ? !record.embeddings?.gemini : !record.embeddings?.openai;
+
+    if (needsSync) {
+      try {
+        let content = '';
+        try {
+          content = readFileSync(join(PROPOSALS_DIR, record.fileName), 'utf-8');
+        } catch {
+          errors++;
+          continue;
+        }
+
+        const newEmbeddings = { ...(record.embeddings || {}) };
+        
+        try {
+          const vector = await generateEmbedding(content, embedder);
+          if (provider === 'gemini') newEmbeddings.gemini = vector;
+          if (provider === 'openai') newEmbeddings.openai = vector;
+          
+          record.embeddings = newEmbeddings;
+          synchronized++;
+        } catch (e) {
+          console.error(`[KB] Sync failed for ${provider} on record ${record.id}:`, e instanceof Error ? e.message : e);
+          errors++;
+        }
+      } catch (e) {
+        console.error(`[KB] Record sync process failed for ${record.id}:`, e);
+        errors++;
+      }
+    }
+  }
+
+  if (synchronized > 0) {
+    writeVectors(records);
+  }
+
+  return { synchronized, errors };
 }
