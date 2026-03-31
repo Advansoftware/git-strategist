@@ -9,6 +9,7 @@ import { BrunoProposal } from './analysis/bruno-proposal';
 import { SuggestedSkills } from './analysis/suggested-skills';
 import { PotentialChallenges } from './analysis/potential-challenges';
 import { ResourceSuggestions } from './analysis/resource-suggestions';
+import { DownloadProposalButton } from './analysis/download-button';
 
 interface ResultsViewProps {
   analysis: ProjectAnalysis;
@@ -22,10 +23,11 @@ export function ResultsView({ analysis, onAddSkills }: ResultsViewProps) {
     <div className="space-y-6 animate-in fade-in-50 duration-500">
       <Card className="shadow-lg rounded-xl">
         <CardHeader>
-          <div className="flex flex-wrap items-start gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <CardTitle className="font-headline text-2xl lg:text-3xl sr-only">Plano do Projeto</CardTitle>
-            <div className="flex-grow" />
             <ProjectSummary price={price} effort={effort} strategy={strategy} />
+            <div className="flex-grow" />
+            <DownloadProposalButton analysis={analysis} />
           </div>
         </CardHeader>
         <CardContent>
