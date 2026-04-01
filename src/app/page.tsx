@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { Settings } from 'lucide-react';
 import { useSkills } from '@/hooks/use-skills';
 import { useToast } from '@/hooks/use-toast';
 import { useChatHandler } from '@/hooks/use-chat-handler';
@@ -13,14 +15,17 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { SkillManager } from '@/components/skill-manager';
-import { KnowledgeBaseManager } from '@/components/knowledge-base-manager';
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import { ChatInterface } from '@/components/chat-interface';
-import { Separator } from '@/components/ui/separator';
 import { AIProviderToggle } from '@/components/ai-provider-toggle';
 
 export default function Home() {
+  const router = useRouter();
   const { skills, addMultipleSkills, isLoaded: skillsLoaded } = useSkills();
   const { toast } = useToast();
 
@@ -52,13 +57,18 @@ export default function Home() {
         <SidebarHeader>
           <Logo className="text-sidebar-foreground text-xl" />
         </SidebarHeader>
-        <SidebarContent>
-          <SkillManager />
-          <Separator className="my-2 bg-sidebar-border" />
-          <KnowledgeBaseManager />
-        </SidebarContent>
+        <SidebarContent />
         <SidebarFooter>
-          <p className="text-xs text-center text-sidebar-foreground/50">© 2024 Gig Strategist</p>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <button onClick={() => router.push('/settings')}>
+                  <Settings className="h-4 w-4" />
+                  <span>Configurações</span>
+                </button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
