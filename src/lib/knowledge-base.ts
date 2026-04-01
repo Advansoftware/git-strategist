@@ -222,7 +222,8 @@ export async function findSimilarProposals(
   // Calculate similarity for all records
   const scored = records.map((record) => {
     // 1. Try match the current provider
-    let targetVector = record.embeddings?.[provider as keyof typeof record.embeddings];
+    const targetProvider = (provider === 'openrouter' || provider === 'ollama') ? 'gemini' : provider;
+    let targetVector = record.embeddings?.[targetProvider as keyof typeof record.embeddings];
     
     // 2. Fallback to legacy single vector if dimensions match
     if (!targetVector && record.embedding) {
@@ -351,15 +352,17 @@ export async function getSyncStatus(): Promise<{
 }> {
   const records = readVectors();
   const provider = await getActiveProvider();
-  const hasKey = provider === 'gemini' ? isGeminiConfigured() : isOpenAIConfigured();
+  
+  const targetProvider = (provider === 'openrouter' || provider === 'ollama') ? 'gemini' : provider;
+  const hasKey = targetProvider === 'gemini' ? isGeminiConfigured() : isOpenAIConfigured();
 
   if (!hasKey) {
     return { total: records.length, outOfSync: 0, provider };
   }
 
   const outOfSync = records.filter(r => {
-    if (provider === 'gemini') return !r.embeddings?.gemini;
-    if (provider === 'openai') return !r.embeddings?.openai;
+    if (targetProvider === 'gemini') return !r.embeddings?.gemini;
+    if (targetProvider === 'openai') return !r.embeddings?.openai;
     return false;
   }).length;
 
@@ -377,13 +380,15 @@ export async function getSyncStatus(): Promise<{
 export async function performSync(): Promise<{ synchronized: number; errors: number }> {
   const records = readVectors();
   const provider = await getActiveProvider();
-  const embedder = provider === 'gemini' ? geminiEmbedder : gptLargeEmbedder;
+  
+  const targetProvider = (provider === 'openrouter' || provider === 'ollama') ? 'gemini' : provider;
+  const embedder = targetProvider === 'gemini' ? geminiEmbedder : gptLargeEmbedder;
   
   let synchronized = 0;
   let errors = 0;
 
   for (const record of records) {
-    const needsSync = provider === 'gemini' ? !record.embeddings?.gemini : !record.embeddings?.openai;
+    const needsSync = targetProvider === 'gemini' ? !record.embeddings?.gemini : !record.embeddings?.openai;
 
     if (needsSync) {
       try {
@@ -399,8 +404,8 @@ export async function performSync(): Promise<{ synchronized: number; errors: num
         
         try {
           const vector = await generateEmbedding(content, embedder);
-          if (provider === 'gemini') newEmbeddings.gemini = vector;
-          if (provider === 'openai') newEmbeddings.openai = vector;
+          if (targetProvider === 'gemini') newEmbeddings.gemini = vector;
+          if (targetProvider === 'openai') newEmbeddings.openai = vector;
           
           record.embeddings = newEmbeddings;
           synchronized++;

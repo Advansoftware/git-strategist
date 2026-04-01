@@ -185,7 +185,7 @@ export async function removeSkill(skill: string): Promise<{ success: true } | { 
   }
 }
 
-export async function setAIProvider(provider: 'gemini' | 'openai') {
+export async function setAIProvider(provider: 'gemini' | 'openai' | 'openrouter' | 'ollama') {
   const cookieStore = await cookies();
   cookieStore.set('PREFERRED_AI_PROVIDER', provider, {
     path: '/',
