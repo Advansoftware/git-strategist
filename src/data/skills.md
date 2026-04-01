@@ -44,7 +44,8 @@
 - Gerenciamento de autenticação e segurança de APIs
 - Monitoramento, logs e observabilidade de automações
 - Conhecimento em LGPD e boas práticas de privacidade de dados
+- Tenho o respondia, uma plataforma de automação de whatsapp completa, que usa evolution api, postgress rag docker, não usa n8n aqui
 
 ---
 
-*Última atualização: 2026-03-31T18:01:39.132Z*
+*Última atualização: 2026-04-01T16:24:05.146Z*
