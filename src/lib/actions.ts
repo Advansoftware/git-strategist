@@ -16,6 +16,7 @@ import {
   performSync
 } from '@/lib/knowledge-base';
 import { loadSkills, saveSkills, addSkill as addSkillToStore, removeSkill as removeSkillFromStore } from '@/lib/skills-store';
+import { loadAbout, saveAbout } from '@/lib/about-store';
 import type { ProjectAnalysis } from '@/lib/types';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
@@ -23,6 +24,7 @@ import { revalidatePath } from 'next/cache';
 export async function getProjectAnalysis(
   projectDescription: string,
   userSkills: string[],
+  userAbout?: string,
   minBudget?: number,
   maxBudget?: number,
   minPossibleBudget?: number
@@ -32,7 +34,7 @@ export async function getProjectAnalysis(
   }
 
   try {
-    const commonInput = { projectDescription, userSkills };
+    const commonInput = { projectDescription, userSkills, userAbout: userAbout || undefined };
 
     // Retrieve KB references first (needed for both price and proposal)
     const kbReferences = await findSimilarProposals(projectDescription, 3).catch(() => []);
@@ -219,5 +221,29 @@ export async function syncKnowledgeBase() {
       return { error: error.message };
     }
     return { error: 'Falha ao sincronizar a base de conhecimento.' };
+  }
+}
+
+// --- About (Sobre Mim) Actions ---
+
+export async function getAbout(): Promise<string> {
+  try {
+    return await loadAbout();
+  } catch (error) {
+    console.error('Failed to load about:', error);
+    return '';
+  }
+}
+
+export async function saveAboutContent(content: string): Promise<{ success: true } | { error: string }> {
+  try {
+    await saveAbout(content);
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to save about:', error);
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: 'Falha ao salvar informações pessoais.' };
   }
 }

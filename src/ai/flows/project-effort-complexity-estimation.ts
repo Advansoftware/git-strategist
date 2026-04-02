@@ -14,6 +14,7 @@ import {z} from 'genkit';
 const ProjectEffortComplexityInputSchema = z.object({
   projectDescription: z.string().describe('A detailed description of the freelance project.'),
   userSkills: z.array(z.string()).describe('A list of the freelancer\'s relevant skills.'),
+  userAbout: z.string().optional().describe('Background information about the freelancer: experience, past projects, tools they master, strengths and weaknesses.'),
 });
 export type ProjectEffortComplexityInput = z.infer<typeof ProjectEffortComplexityInputSchema>;
 
@@ -29,7 +30,7 @@ const projectEffortComplexityPrompt = ai.definePrompt({
   name: 'projectEffortComplexityPrompt',
   input: {schema: ProjectEffortComplexityInputSchema},
   output: {schema: ProjectEffortComplexityOutputSchema},
-  prompt: `Você é um analista especialista em projetos freelance. Sua tarefa é avaliar a descrição de um projeto e determinar sua complexidade e o tempo de dedicação recomendado, considerando especificamente as habilidades listadas do freelancer. A complexidade e o tempo devem ser menores se o freelancer possuir as habilidades necessárias.
+  prompt: `Você é um analista especialista em projetos freelance. Sua tarefa é avaliar a descrição de um projeto e determinar sua complexidade e o tempo de dedicação recomendado, considerando especificamente as habilidades e a experiência do freelancer. A complexidade e o tempo devem ser menores se o freelancer possuir as habilidades e experiência direta com projetos similares.
 
 Descrição do Projeto: {{{projectDescription}}}
 
@@ -38,7 +39,12 @@ Habilidades do Freelancer:
 - {{{this}}}
 {{/each}}
 
-Com base na descrição do projeto e nas habilidades do freelancer, forneça uma recomendação de tempo de dedicação e uma classificação de complexidade.
+{{#if userAbout}}
+Informações sobre o Freelancer (experiência, projetos anteriores, ferramentas dominadas):
+{{{userAbout}}}
+{{/if}}
+
+Com base na descrição do projeto e nas informações do freelancer, forneça uma recomendação de tempo de dedicação e uma classificação de complexidade. Leve em conta a experiência passada e familiaridade com tecnologias e padrões similares. Se o freelancer já fez projetos parecidos, o tempo estimado deve ser menor.
 - **Complexidade:** 'iniciante', 'intermediário' ou 'avançado'.
 - **Tempo de Dedicação:** Forneça uma estimativa de horas de trabalho realista (ex: '30-40 horas'). Comece estimando o esforço principal e adicione uma margem de contingência razoável (cerca de 20%) para revisões e imprevistos. Evite transformar tarefas de poucas horas em vários dias. Uma tarefa de 8 horas, por exemplo, deve ser estimada em torno de 10-12 horas, não 2-3 dias.`,
 });

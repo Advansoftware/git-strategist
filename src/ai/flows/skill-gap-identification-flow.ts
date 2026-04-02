@@ -17,6 +17,10 @@ const SkillGapInputSchema = z.object({
   userSkills: z
     .array(z.string())
     .describe('A list of the user\'s current skills.'),
+  userAbout: z
+    .string()
+    .optional()
+    .describe('Background information about the freelancer: experience, past projects, strengths and weaknesses.'),
 });
 export type SkillGapInput = z.infer<typeof SkillGapInputSchema>;
 
@@ -44,7 +48,7 @@ const skillGapIdentificationPrompt = ai.definePrompt({
   name: 'skillGapIdentificationPrompt',
   input: {schema: SkillGapInputSchema},
   output: {schema: SkillGapOutputSchema},
-  prompt: `Você é um analista de projetos especialista em projetos freelance. Sua tarefa é analisar a descrição de um projeto e identificar habilidades que seriam muito benéficas ou que estão potencialmente faltando para o usuário, com base em seu conjunto de habilidades existente. O objetivo é ajudar o usuário a melhorar continuamente seu portfólio de habilidades para projetos futuros.
+  prompt: `Você é um analista de projetos especialista em projetos freelance. Sua tarefa é analisar a descrição de um projeto e identificar habilidades que seriam muito benéficas ou que estão potencialmente faltando para o usuário, com base em seu conjunto de habilidades existente e sua experiência descrita. O objetivo é ajudar o usuário a melhorar continuamente seu portfólio de habilidades para projetos futuros.
 
 Descrição do Projeto:
 {{{projectDescription}}}
@@ -57,7 +61,12 @@ Habilidades Atuais do Usuário:
 Nenhuma fornecida.
 {{/if}}
 
-Com base na descrição do projeto e nas habilidades atuais do usuário, identifique até 5 habilidades-chave que ajudariam significativamente na conclusão bem-sucedida deste projeto, mas que não estão explicitamente listadas nas habilidades atuais do usuário. Para cada habilidade sugerida, forneça uma breve explicação de sua relevância. Se nenhuma habilidade adicional for considerada necessária ou benéfica, retorne um array vazio para 'missingSkills'.
+{{#if userAbout}}
+Sobre o Freelancer (experiência, projetos anteriores, pontos fortes e fracos):
+{{{userAbout}}}
+{{/if}}
+
+Com base na descrição do projeto, nas habilidades atuais e nas informações sobre o freelancer, identifique até 5 habilidades-chave que ajudariam significativamente na conclusão bem-sucedida deste projeto, mas que não estão explicitamente listadas nas habilidades atuais do usuário. Considere o contexto e a experiência descrita. Para cada habilidade sugerida, forneça uma breve explicação de sua relevância. Se nenhuma habilidade adicional for considerada necessária ou benéfica, retorne um array vazio para 'missingSkills'.
 
 O resultado deve estar no formato JSON correspondente ao SkillGapOutputSchema.`,
 });

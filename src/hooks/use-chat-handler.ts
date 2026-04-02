@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { getProjectAnalysis } from '@/lib/actions';
+import { useState, useEffect } from 'react';
+import { getProjectAnalysis, getAbout } from '@/lib/actions';
 import type { ProjectAnalysis } from '@/lib/types';
 import { useToast } from './use-toast';
 
@@ -23,21 +23,26 @@ export function useChatHandler({ skills }: UseChatHandlerProps) {
   const [minPossibleBudget, setMinPossibleBudget] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [userAbout, setUserAbout] = useState<string>('');
+
+  useEffect(() => {
+    getAbout().then((about) => setUserAbout(about)).catch(() => {});
+  }, []);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!prompt.trim()) return;
 
     setIsLoading(true);
-    
+
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: prompt,
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
-    
+
     const currentPrompt = prompt;
     setPrompt('');
 
@@ -45,7 +50,7 @@ export function useChatHandler({ skills }: UseChatHandlerProps) {
     const max = maxBudget ? parseFloat(maxBudget) : undefined;
     const minPossible = minPossibleBudget ? parseFloat(minPossibleBudget) : undefined;
 
-    const result = await getProjectAnalysis(currentPrompt, skills, min, max, minPossible);
+    const result = await getProjectAnalysis(currentPrompt, skills, userAbout, min, max, minPossible);
 
     if ('error' in result) {
       toast({
